@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package working;
+package projectofinalcomputacaografica;
 
 /**
  *
@@ -15,10 +15,10 @@ package working;
 public class Working {
 
    
-    
+    /*
     public static void main(String[] args) {
        
         new Cenario();
-    }
+    }*/
     
 }
