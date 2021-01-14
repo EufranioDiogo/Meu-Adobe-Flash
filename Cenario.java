@@ -34,7 +34,6 @@ public class Cenario extends JPanel  {
     
     
     private ArrayList<Point> lapis = new ArrayList<>();
-    private JColorChooser isSelectedColor;
     private JButton choose ;
     private Color color;
    
