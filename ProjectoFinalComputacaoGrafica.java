@@ -1,17 +1,20 @@
-
 package projectofinalcomputacaografica;
 
-/**
- *
- * @author ed
- */
-public class ProjectoFinalComputacaoGrafica {
+import javax.swing.JFrame;
 
-    /**
-     * @param args the command line arguments
-     */
+/**
+* @author ed
+*/
+public class ProjectoFinalComputacaoGrafica {
     public static void main(String[] args) {
-        new Cenario();
+        JanelaPrincipal janelaPrincipal = new JanelaPrincipal();
+        
+        janelaPrincipal.setSize(1200, 600);
+        janelaPrincipal.setVisible(true);
+        janelaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        janelaPrincipal.setResizable(false);
+        janelaPrincipal.setLocationRelativeTo(null);
+        
+        
     }
-    
 }
