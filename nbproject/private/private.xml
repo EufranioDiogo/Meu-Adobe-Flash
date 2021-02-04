@@ -5,19 +5,12 @@
             <url>src/projectofinalcomputacaografica/JanelaPrincipal.java</url>
             <bookmark id="1">
                 <name/>
-                <line>59</line>
+                <line>63</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/home/ed/NetBeansProjects/ProjectoFinalComputacaoGrafica/src/projectofinalcomputacaografica/Timeline.java</file>
-            <file>file:/home/ed/NetBeansProjects/ProjectoFinalComputacaoGrafica/src/projectofinalcomputacaografica/JanelaPrincipal.java</file>
-            <file>file:/home/ed/NetBeansProjects/ProjectoFinalComputacaoGrafica/src/projectofinalcomputacaografica/FiguraGeometrica.java</file>
-            <file>file:/home/ed/NetBeansProjects/ProjectoFinalComputacaoGrafica/src/projectofinalcomputacaografica/ProjectoUtils.java</file>
-            <file>file:/home/ed/NetBeansProjects/ProjectoFinalComputacaoGrafica/src/projectofinalcomputacaografica/Frame.java</file>
-            <file>file:/home/ed/NetBeansProjects/ProjectoFinalComputacaoGrafica/src/projectofinalcomputacaografica/ProjectoFinalComputacaoGrafica.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
