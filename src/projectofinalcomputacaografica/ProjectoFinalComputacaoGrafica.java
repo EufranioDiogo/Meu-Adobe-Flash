@@ -14,7 +14,5 @@ public class ProjectoFinalComputacaoGrafica {
         janelaPrincipal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         janelaPrincipal.setResizable(false);
         janelaPrincipal.setLocationRelativeTo(null);
-        
-        
     }
 }

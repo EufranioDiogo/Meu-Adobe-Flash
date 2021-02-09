@@ -16,12 +16,12 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -31,69 +31,56 @@ import javax.swing.JToolBar;
  * @Autor ed
  * Free Use - Livre Uso
  */
-public class JanelaPrincipal extends JFrame {
-    private static int WIDTH_JANELA = 1200;
-    private static int HEIGHT_JANELA = 600;
+public final class JanelaPrincipal extends JFrame {
+    private static final int WIDTH_JANELA = 1200;
     final int TIMELINE_WIDTH = 1200;
     final int TIMELINE_HEIGTH = 100;
+    final String PATH_ICONS = "ICON_FIGURAS/";
     
     private Color corDeDesenho;
     private final JToolBar barraFerramentasDeDesenho = new JToolBar();
     private final JToolBar barraFerramentasDeFuncionalidades = new JToolBar();
-    private final JButton buttonMao = new JButton("Mão");
-    private final JButton buttonLapis = new JButton("Lapis");
-    private final JButton buttonColor = new JButton("Cor");
-    private final JButton buttonQuadrado = new JButton("Quadrado");
+    
+    private final JButton buttonMao = new JButton(new ImageIcon(PATH_ICONS + "mao2.jpeg"));
+    private final JButton buttonLapis = new JButton(new ImageIcon(PATH_ICONS + "lapis.png"));
+    private final JButton buttonLine = new JButton(new ImageIcon(PATH_ICONS + "linha.png"));
+    private final JButton buttonApagador = new JButton(new ImageIcon(PATH_ICONS + "borracha.png"));
+    private final JButton buttonQuadrado = new JButton(new ImageIcon(PATH_ICONS + "quadrado.png"));
+    private final JButton buttonCirculo = new JButton(new ImageIcon(PATH_ICONS + "circulo.png"));
     private final JButton buttonQuadradoB = new JButton("QuadradoB");
-    private final JButton buttonCirculo = new JButton("Circulo");
-    private final JButton buttonTriangulo = new JButton("Triangulo");
-    private final JButton buttonLine = new JButton("Linha");
-    private final JButton buttonApagador = new JButton("Apagador");
+    private final JButton buttonTriangulo = new JButton(new ImageIcon(PATH_ICONS + "triangulo.png"));
+    private final JButton buttonColor = new JButton();
+    
+    
     private final JCheckBox checkBoxRotacao = new JCheckBox("Rotação");
     private final JButton buttonPlay = new JButton("Play");
     private final JButton buttonSetKeyFrame = new JButton("Set Keyframe");
     private final JButton buttonSetBlankKeyFrame = new JButton("Blank Keyframe");
     private final JButton buttonSetFrameAnimation = new JButton("Set Animation");
+    public JButton botaoSelecionadoAnteriormente = null;
     private int inicioAnimacao, fimAnimacao;
     private int setandoInicioEFim = 1;
     private boolean settingAnimationStartFrame = false;
     
-    private final Timeline timeline;
+    private Timeline timeline;
     
     private int actualFrameIndex = 0;
-    private Thread thread;
-    
-    private final PainelDeDesenho painelDeDesenho;
+    private PainelDeDesenho painelDeDesenho;
 
+    
     public JanelaPrincipal() {
-        super.setTitle("Flayers");
-        super.setLayout(null);
-        super.setBackground(Color.BLACK);
-        
+        standardConfiguration();
         inicializarBarraDeFerramentasDeDesenho();
         inicializarBarraDeFerramentasDeFuncionalidades();
-        
-        timeline = new Timeline();
-        JScrollPane scrollPane = new JScrollPane(timeline);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        scrollPane.setBounds(0, 460, TIMELINE_WIDTH, TIMELINE_HEIGTH);
-        scrollPane.setBackground(Color.BLACK);
-        
-        
-        final int PAINEL_DE_DESENHO_WIDTH = 850;
-        painelDeDesenho = new PainelDeDesenho();
-        painelDeDesenho.setBackground(Color.WHITE);
-        painelDeDesenho.setBounds((int)(WIDTH_JANELA / 2) - (int)(PAINEL_DE_DESENHO_WIDTH / 2), 40, 850, 400);
-        
+        inicializarTimeline();
+        inicializarPainelDeDesenho();
         
         super.add(painelDeDesenho);
-        super.add(scrollPane);
         super.add(barraFerramentasDeDesenho);
         super.add(barraFerramentasDeFuncionalidades);
         
-        OuvidorDeOpcoesEscolhidas escutaDeClickEmBotoes = new OuvidorDeOpcoesEscolhidas();
         
+        OuvidorDeOpcoesEscolhidas escutaDeClickEmBotoes = new OuvidorDeOpcoesEscolhidas();
         buttonMao.addActionListener(escutaDeClickEmBotoes);
         buttonLapis.addActionListener(escutaDeClickEmBotoes);
         buttonColor.addActionListener(escutaDeClickEmBotoes);
@@ -104,12 +91,33 @@ public class JanelaPrincipal extends JFrame {
         buttonTriangulo.addActionListener(escutaDeClickEmBotoes);
         buttonApagador.addActionListener(escutaDeClickEmBotoes);
         checkBoxRotacao.addActionListener(escutaDeClickEmBotoes);
-        
+    }
+    
+    public void standardConfiguration() {
+        super.setTitle("hsalF");
+        super.setLayout(null);
+        super.setBackground(Color.BLACK);
+    }
+    
+    public void inicializarTimeline() {
+        timeline = new Timeline();
+        JScrollPane scrollPane = new JScrollPane(timeline);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scrollPane.setBounds(0, 460, TIMELINE_WIDTH, TIMELINE_HEIGTH);
+        scrollPane.setBackground(Color.BLACK);
+        super.add(scrollPane);
+    }
+    
+    public void inicializarPainelDeDesenho() {
+        final int PAINEL_DE_DESENHO_WIDTH = 850;
+        painelDeDesenho = new PainelDeDesenho();
+        painelDeDesenho.setBackground(Color.WHITE);
+        painelDeDesenho.setBounds((int)(WIDTH_JANELA / 2) - (int)(PAINEL_DE_DESENHO_WIDTH / 2), 40, 850, 400);
     }
     
     private void inicializarBarraDeFerramentasDeFuncionalidades() {
         barraFerramentasDeFuncionalidades.setBackground(Color.WHITE);
-        buttonLapis.setPreferredSize(new Dimension(60, 10));
         barraFerramentasDeFuncionalidades.add(checkBoxRotacao);
         barraFerramentasDeFuncionalidades.add(buttonSetKeyFrame);
         barraFerramentasDeFuncionalidades.add(buttonSetBlankKeyFrame);
@@ -174,30 +182,29 @@ public class JanelaPrincipal extends JFrame {
     
     private void inicializarBarraDeFerramentasDeDesenho() {
         barraFerramentasDeDesenho.setBackground(Color.WHITE);
-        buttonLapis.setPreferredSize(new Dimension(60, 10));
         barraFerramentasDeDesenho.add(buttonMao);
         barraFerramentasDeDesenho.add(buttonLapis);
-        barraFerramentasDeDesenho.add(buttonColor);
         barraFerramentasDeDesenho.add(buttonQuadrado);
         barraFerramentasDeDesenho.add(buttonQuadradoB);
         barraFerramentasDeDesenho.add(buttonCirculo);
         barraFerramentasDeDesenho.add(buttonLine);
         barraFerramentasDeDesenho.add(buttonTriangulo);
         barraFerramentasDeDesenho.add(buttonApagador);
-        barraFerramentasDeDesenho.add(checkBoxRotacao);
-        barraFerramentasDeDesenho.add(buttonSetKeyFrame);
-        barraFerramentasDeDesenho.add(buttonPlay);
+        barraFerramentasDeDesenho.add(buttonColor);
+        
         barraFerramentasDeDesenho.setOrientation(1);
         barraFerramentasDeDesenho.setBounds(0, 0, 150, 450);
         
         for (Object elemento : barraFerramentasDeDesenho.getComponents()) {
             if (elemento instanceof JButton) {
                 final JButton auxButton = (JButton) elemento;
-                
-                auxButton.setPreferredSize(new Dimension(50, 10));
+                auxButton.setMaximumSize(new Dimension(40, 40));
+                auxButton.setMaximumSize(new Dimension(40, 40));
                 auxButton.setBackground(Color.WHITE);
             }
         }
+        buttonCirculo.setBackground(new Color(0, 174, 255));
+        botaoSelecionadoAnteriormente = buttonCirculo;
     }
     
     
@@ -205,7 +212,6 @@ public class JanelaPrincipal extends JFrame {
     public class OuvidorDeOpcoesEscolhidas implements ActionListener {
         public int forma;
         public boolean maoSelecionada = false;
-        public JButton botaoSelecionadoAnteriormente = null;
         
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -235,14 +241,12 @@ public class JanelaPrincipal extends JFrame {
                 forma = 0;
             } else if (e.getSource() == buttonColor) {
                 Color color = JColorChooser.showDialog(null, "Seleciona a cor", Color.RED);
-                System.out.println(color);
-                if (color != null) {
-                    corDeDesenho = color;
-                }
+                corDeDesenho = color != null ? color : Color.BLACK;
+                
+                System.out.println(corDeDesenho);
                 forma = painelDeDesenho.getForma();
             } else if (e.getSource() == buttonQuadrado) {
                 forma = 1;
-                
             } else if (e.getSource() == buttonQuadradoB) {
                 forma = 2;
             } else if (e.getSource() == buttonCirculo) {
@@ -258,6 +262,7 @@ public class JanelaPrincipal extends JFrame {
             if (forma != -1) {
                 maoSelecionada = false;
             }
+            buttonColor.setBackground(corDeDesenho);
             painelDeDesenho.setInformacoesDePainelEsquerdo(forma, corDeDesenho, maoSelecionada);
         }
     }
@@ -369,10 +374,13 @@ public class JanelaPrincipal extends JFrame {
                 Frame endFrame = (Frame) timeline.listaDeFrames.get(endIndexFrame);
                 
                 
-                final int quantFormasGeometricas = endFrame.listaDeDesenhosNesteFrame.size() >= startFrame.listaDeDesenhosNesteFrame.size() ?
-                    startFrame.listaDeDesenhosNesteFrame.size() : endFrame.listaDeDesenhosNesteFrame.size();
-                final ArrayList<FiguraGeometrica> listaDeFiguras = endFrame.listaDeDesenhosNesteFrame.size() >= startFrame.listaDeDesenhosNesteFrame.size() ?
-                    startFrame.listaDeDesenhosNesteFrame : endFrame.listaDeDesenhosNesteFrame;
+                final int quantFormasGeometricas = endFrame.listaDeDesenhosNesteFrame.size() >= 
+                        startFrame.listaDeDesenhosNesteFrame.size() ? startFrame.listaDeDesenhosNesteFrame.size() : 
+                        endFrame.listaDeDesenhosNesteFrame.size();
+                
+                final ArrayList<FiguraGeometrica> listaDeFiguras = endFrame.listaDeDesenhosNesteFrame.size() >= 
+                        startFrame.listaDeDesenhosNesteFrame.size() ?
+                        startFrame.listaDeDesenhosNesteFrame : endFrame.listaDeDesenhosNesteFrame;
                 
                 
                 for (actualIndexFrame = inicioAnimacao + 1; actualIndexFrame < endIndexFrame; actualIndexFrame++) {
@@ -400,10 +408,8 @@ public class JanelaPrincipal extends JFrame {
                     representacaoVisualFrame.setEnabled(false);
                     representacaoVisualFrame.setBackground(new Color(30, 30, 30));
                 }
-                
             }
         }
-        
     }
    
     
@@ -411,16 +417,15 @@ public class JanelaPrincipal extends JFrame {
         int posXInicialMouse, posXFinalMouse, posYFinalMouse, posYInicialMouse;
         int formaParaSerDesenhada = 3;
         boolean redesenharTodosObjectos = false;
-        Color corDoDesenho = Color.BLACK;
+        Color corDoDesenho;
         Dimension dimensao = Toolkit.getDefaultToolkit().getScreenSize();
         private boolean rotacao;
         Thread thread;
-        private float rotacaoObjectos = 0;
         ArrayList<Frame> listaDeFrames;
         private boolean running = false;
         private boolean maoSelecionada = false;
         FiguraGeometrica figuraASerArrastada;
-        
+        FiguraGeometrica novaFigura;
         
         public PainelDeDesenho() {
             listaDeFrames = timeline.getListaDeFrames();
@@ -458,6 +463,11 @@ public class JanelaPrincipal extends JFrame {
                      g2d.setTransform(affineAux);
                  });
             
+            int largura = Math.abs(posXFinalMouse - posXInicialMouse);
+            int altura = Math.abs(posYFinalMouse - posYInicialMouse);
+            
+            desenharObjecto(new FiguraGeometrica(posXInicialMouse, posYInicialMouse, largura, altura,
+                            corDoDesenho, formaParaSerDesenhada, actualFrameIndex), g);
             g2d.setTransform(afine);
         }
         
@@ -470,7 +480,9 @@ public class JanelaPrincipal extends JFrame {
                    painelDeDesenho.repaint();
                }
            } else {
-               
+               posXFinalMouse = e.getX();
+               posYFinalMouse = e.getY();
+               repaint();
            }
         }
 
@@ -489,7 +501,6 @@ public class JanelaPrincipal extends JFrame {
             if (!maoSelecionada) {
                 posXInicialMouse = e.getX();
                 posYInicialMouse = e.getY();
-                this.redesenharTodosObjectos = true;  
             } else {
                 FiguraGeometrica figuraGeometricaASerMovimentada;
                 Point pontoClicadoPeloMouse = e.getPoint();
@@ -503,7 +514,7 @@ public class JanelaPrincipal extends JFrame {
                     figuraASerArrastada = figuraGeometricaASerMovimentada;
                 } else {
                     figuraASerArrastada = null;
-                    System.out.println("Está gato");
+                    System.out.println("Nenhum elemento selecionado");
                 }
             }
         }
@@ -531,18 +542,21 @@ public class JanelaPrincipal extends JFrame {
                 }
                 altura = posYFinalMouse - posYInicialDesenho;
 
-                FiguraGeometrica novaFigura = new FiguraGeometrica
-                (posXInicialDesenho, posYInicialDesenho, altura, largura,
-                corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
-
-
+                if (formaParaSerDesenhada == 4) {
+                    novaFigura = new FiguraGeometrica(posXInicialDesenho,
+                            posYInicialDesenho, posXFinalMouse, posYInicialDesenho,
+                            corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
+                } else {
+                    novaFigura = new FiguraGeometrica(posXInicialDesenho,
+                            posYInicialDesenho, largura, altura,
+                            corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
+                }
+                
                 inserirNovaFigura(novaFigura);
-
-                novaFigura.setRotacionando(rotacao);
+                
                 timeline.listaDeFrames
                         .get(actualFrameIndex % timeline.getListaDeFrames().size())
                         .listaDeDesenhosNesteFrame.add(novaFigura);
-                this.redesenharTodosObjectos = true;
                 super.repaint();
             } else {
                 if (timeline.getListaDeFrames().get(actualFrameIndex).isKeyFrame()) {
@@ -584,14 +598,13 @@ public class JanelaPrincipal extends JFrame {
         private void desenharObjecto(FiguraGeometrica objecto, Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             
+            int x = objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? 
+                    (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getX() : objecto.getxPos();
+            
+            int y =  objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? 
+                    (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getY() : objecto.getyPos();;
+            
             g2d.setColor(objecto.getCorFigura());
-            if (objecto.isRotacionando()) {
-                g2d.rotate(objecto.getGrauRotacao(), objecto.getCenterX(), objecto.getCenterY());
-            }
-            
-            int x = objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getX() : objecto.getxPos();
-            int y =  objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getY() : objecto.getyPos();;
-            
             switch (objecto.getForma()) {
                 case 1:
                     g2d.fillRect(x, y, objecto.getLargura(), objecto.getAltura());
@@ -606,7 +619,7 @@ public class JanelaPrincipal extends JFrame {
                     break;
                 case 4:
                     g2d.drawLine(x, y, 
-                            objecto.getxPos() + objecto.getLargura(), objecto.getyPos() + objecto.getAltura());
+                            objecto.getLargura(), objecto.getAltura());
                     break;
                 case 5:
                     g2d.fillRect(x, y, 
@@ -630,7 +643,7 @@ public class JanelaPrincipal extends JFrame {
                     Thread.sleep(1000/24);
                     actualFrameIndex++;
                     
-                    if (actualFrameIndex >= 240) {
+                    if (actualFrameIndex >= 239) {
                         actualFrameIndex = 0;
                         thread.interrupt();
                         running = false;

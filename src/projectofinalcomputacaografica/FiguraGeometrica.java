@@ -25,7 +25,7 @@ public class FiguraGeometrica extends JPanel implements Runnable, MouseListener 
     boolean rotacionando = false;
     Thread thread;
     
-    public FiguraGeometrica(int xPos, int yPos, int altura, int largura, Color corFigura, int forma, int frameDeCriacao) {
+    public FiguraGeometrica(int xPos, int yPos, int largura, int altura, Color corFigura, int forma, int frameDeCriacao) {
         this.altura = altura;
         this.largura = largura;
         this.corFigura = corFigura;
