@@ -13,7 +13,7 @@ import javax.swing.JPanel;
  * @Autor ed
  * Free Use - Livre_Uso
  */
-public class FiguraGeometrica extends JPanel implements Runnable, MouseListener {
+public class FiguraGeometrica extends JPanel {
     HashMap<Integer, Point> posicoesObjectoNosFrames = new HashMap<>();
     Point localizacaoObjecto;
     int altura, largura;
@@ -105,7 +105,6 @@ public class FiguraGeometrica extends JPanel implements Runnable, MouseListener 
 
     public void setRotacionando(boolean rotacionando) {
         if (rotacionando) {
-            thread = new Thread(this);
             thread.start();
         }
         this.rotacionando = rotacionando;
@@ -138,46 +137,5 @@ public class FiguraGeometrica extends JPanel implements Runnable, MouseListener 
             posicoesObjectoNosFrames.put(frameIndex, novoPonto);
         }
     }
-    
-    
-
-    @Override
-    public void run() {
-        try {
-            while(true) {
-                repaint();
-                grauRotacao += 0.1;
-                Thread.sleep(1000/24);
-            }
-        } catch (Exception e) {
-            System.out.println("Ferrou  ");
-        }
-    }
-    
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("Rotacionando: " + this.forma);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
+        
 }

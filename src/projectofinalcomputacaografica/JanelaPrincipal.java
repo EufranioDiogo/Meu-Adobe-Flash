@@ -261,11 +261,15 @@ public final class JanelaPrincipal extends JFrame {
                 forma = 5;
             } else if (e.getSource() == buttonApagador) {
                 forma = 6;
+                maoSelecionada = false;
+                baldeActivo = false;
+                corDeDesenho = new Color(255, 255, 255);
             }
             
             if (forma != -1) {
                 maoSelecionada = false;
             }
+            
             buttonColor.setBackground(corDeDesenho);
             painelDeDesenho.setInformacoesDePainelEsquerdo(forma, corDeDesenho, maoSelecionada);
         }
@@ -418,17 +422,20 @@ public final class JanelaPrincipal extends JFrame {
    
     
     public class PainelDeDesenho extends JPanel implements MouseMotionListener, MouseListener, Runnable{
-        int posXInicialMouse, posXFinalMouse, posYFinalMouse, posYInicialMouse;
+        int posXInicialMouse, posYInicialMouse, posXFinalMouse, posYFinalMouse;
         int formaParaSerDesenhada = 3;
+        int sizeBorracha = 30;
         boolean redesenharTodosObjectos = false;
         Color corDoDesenho;
         Dimension dimensao = Toolkit.getDefaultToolkit().getScreenSize();
         Thread thread;
         ArrayList<Frame> listaDeFrames;
+        ArrayList<FiguraGeometrica> apagadorLista = new ArrayList<>();
         private boolean running = false;
         private boolean maoSelecionada = false;
         FiguraGeometrica figuraASerArrastada;
         FiguraGeometrica novaFigura;
+        Graphics2D g2d;
         
         public PainelDeDesenho() {
             listaDeFrames = timeline.getListaDeFrames();
@@ -452,120 +459,40 @@ public final class JanelaPrincipal extends JFrame {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
+            g2d = (Graphics2D) g;
             AffineTransform afine = g2d.getTransform();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
-            timeline.listaDeFrames.get(actualFrameIndex % timeline.getListaDeFrames().size())
+            timeline
+                 .listaDeFrames
+                 .get(actualFrameIndex % timeline.getListaDeFrames().size())
                  .listaDeDesenhosNesteFrame.forEach((objecto) -> {
                      AffineTransform affineAux = g2d.getTransform();
-                     desenharObjecto(objecto, g);
+                     desenharObjecto(objecto);
                      g2d.setTransform(affineAux);
                  });
             
-            int x, y, largura, altura;
-            
-            if (posXFinalMouse < posXInicialMouse) {
-                x = posXFinalMouse;
-                largura = posXInicialMouse - posXFinalMouse;
-            } else {
-                x = posXInicialMouse;
-                largura = posXFinalMouse - posXInicialMouse;
-            }
+            apagadorLista.forEach((objecto) -> {
+                AffineTransform affineAux = g2d.getTransform();
+                desenharObjecto(objecto);
+                g2d.setTransform(affineAux);
+            });
             
             
             
-
-            if (posYFinalMouse < posYInicialMouse) {
-                y = posYFinalMouse;
-                altura = posYInicialMouse - posYFinalMouse;
-            } else {
-                y = posYInicialMouse;
-                altura = posYFinalMouse - posYInicialMouse;
-            }
-                
-            desenharObjecto(new FiguraGeometrica(x, y, largura, altura,
-                            corDoDesenho, formaParaSerDesenhada, actualFrameIndex), g);
+            desenharNovaFigura();
             g2d.setTransform(afine);
         }
         
-        @Override
-        public void mouseDragged(MouseEvent e) {
-           if (maoSelecionada && baldeActivo == false) {
-               if (figuraASerArrastada != null) {
-                   figuraASerArrastada.setxPos(e.getPoint().x);
-                   figuraASerArrastada.setyPos(e.getPoint().y);
-                   painelDeDesenho.repaint();
-               }
-           } else {
-               posXFinalMouse = e.getX();
-               posYFinalMouse = e.getY();
-               repaint();
-           }
-        }
-
-        @Override
-        public void mouseMoved(MouseEvent e) {
-            
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-                    
-        }
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            if (baldeActivo) {
-                FiguraGeometrica figuraGeometricaASerRecolorida;
-                Point pontoClicadoPeloMouse = e.getPoint();
-
-
-                figuraGeometricaASerRecolorida = timeline.getListaDeFrames()
-                                                  .get(actualFrameIndex)
-                                                  .getFiguraPosicao(pontoClicadoPeloMouse);
-
-                if (figuraGeometricaASerRecolorida != null) {
-                    figuraASerArrastada = figuraGeometricaASerRecolorida;
-                    figuraGeometricaASerRecolorida.setCorFigura(corDeDesenho);
-                    repaint();
-                } else {
-                    figuraASerArrastada = null;
-                    System.out.println("Nenhum elemento selecionado");
-                }  
-            } else if (!maoSelecionada && baldeActivo == false) {
-                posXInicialMouse = e.getX();
-                posYInicialMouse = e.getY();
+        public void desenharNovaFigura() {
+            if (formaParaSerDesenhada == 4) {
+               desenharObjecto(new FiguraGeometrica(posXInicialMouse, posYInicialMouse, 
+                       posXFinalMouse, posYFinalMouse, corDeDesenho, formaParaSerDesenhada, actualFrameIndex));
             } else {
-                FiguraGeometrica figuraGeometricaASerMovimentada;
-                Point pontoClicadoPeloMouse = e.getPoint();
+               int x, y, largura, altura;
+
                
-               
-                figuraGeometricaASerMovimentada = timeline.getListaDeFrames()
-                                                  .get(actualFrameIndex)
-                                                  .getFiguraPosicao(pontoClicadoPeloMouse);
-
-                if (figuraGeometricaASerMovimentada != null) {
-                    figuraASerArrastada = figuraGeometricaASerMovimentada;
-                } else {
-                    figuraASerArrastada = null;
-                    System.out.println("Nenhum elemento selecionado");
-                }
-            }
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            if (!maoSelecionada && baldeActivo == false) {
-                posXFinalMouse = e.getX();
-                posYFinalMouse = e.getY();
-
-                int posXInicialDesenho = posXInicialMouse;
-                int posYInicialDesenho = posYInicialMouse;
-
-                int x, y, largura, altura;
-            
-                if (posXFinalMouse < posXInicialMouse) {
+               if (posXFinalMouse < posXInicialMouse) {
                     x = posXFinalMouse;
                     largura = posXInicialMouse - posXFinalMouse;
                 } else {
@@ -580,35 +507,139 @@ public final class JanelaPrincipal extends JFrame {
                     y = posYInicialMouse;
                     altura = posYFinalMouse - posYInicialMouse;
                 }
+
+               desenharObjecto(new FiguraGeometrica(x, y, largura, altura, 
+                       corDeDesenho, formaParaSerDesenhada, actualFrameIndex));
+             }
+        }
+        
+        @Override
+        public void mouseDragged(MouseEvent e) {
+           if (maoSelecionada && baldeActivo == false) {
+               if (figuraASerArrastada != null) {
+                   figuraASerArrastada.setxPos(e.getPoint().x);
+                   figuraASerArrastada.setyPos(e.getPoint().y);
+               }
+           } else {
+               if (formaParaSerDesenhada != 6) {
+                   posXFinalMouse = e.getX();
+                   posYFinalMouse = e.getY();
+               } else {
+                   apagadorLista.add(new FiguraGeometrica(e.getX(), e.getY(),
+                            sizeBorracha, sizeBorracha, new Color(255, 255, 255), formaParaSerDesenhada, actualFrameIndex));
+               }
+           }
+           repaint();
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
             
-                if (formaParaSerDesenhada == 4) {
-                    novaFigura = new FiguraGeometrica(x,
-                            y, posXFinalMouse, posYFinalMouse,
-                            corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+                    
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (formaParaSerDesenhada != 6) {
+                if (baldeActivo) {
+                    FiguraGeometrica figuraGeometricaASerRecolorida;
+                    Point pontoClicadoPeloMouse = e.getPoint();
+
+
+                    figuraGeometricaASerRecolorida = timeline.getListaDeFrames()
+                                                      .get(actualFrameIndex)
+                                                      .getFiguraPosicao(pontoClicadoPeloMouse);
+
+                    if (figuraGeometricaASerRecolorida != null) {
+                        figuraASerArrastada = figuraGeometricaASerRecolorida;
+                        figuraGeometricaASerRecolorida.setCorFigura(corDeDesenho);
+                        repaint();
+                    } else {
+                        figuraASerArrastada = null;
+                        System.out.println("Nenhum elemento selecionado");
+                    }  
+                } else if (!maoSelecionada && baldeActivo == false) {
+                    posXInicialMouse = e.getX();
+                    posYInicialMouse = e.getY();
                 } else {
-                    novaFigura = new FiguraGeometrica(posXInicialDesenho,
-                            posYInicialDesenho, largura, altura,
-                            corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
+                    FiguraGeometrica figuraGeometricaASerMovimentada;
+                    Point pontoClicadoPeloMouse = e.getPoint();
+
+
+                    figuraGeometricaASerMovimentada = timeline.getListaDeFrames()
+                                                      .get(actualFrameIndex)
+                                                      .getFiguraPosicao(pontoClicadoPeloMouse);
+
+                    if (figuraGeometricaASerMovimentada != null) {
+                        figuraASerArrastada = figuraGeometricaASerMovimentada;
+                    } else {
+                        figuraASerArrastada = null;
+                        System.out.println("Nenhum elemento selecionado");
+                    }
                 }
-                
-                inserirNovaFigura(novaFigura);
-                
-                timeline.listaDeFrames
-                        .get(actualFrameIndex % timeline.getListaDeFrames().size())
-                        .listaDeDesenhosNesteFrame.add(novaFigura);
-                super.repaint();
-            } else {
-                if (timeline.getListaDeFrames().get(actualFrameIndex).isKeyFrame()) {
-                    if (figuraASerArrastada != null) {
-                        if (figuraASerArrastada.posicoesObjectoNosFrames.containsKey(actualFrameIndex)) {
-                            figuraASerArrastada.posicoesObjectoNosFrames.replace(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y)); 
-                        } else {
-                           figuraASerArrastada.posicoesObjectoNosFrames.put(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));  
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            if (formaParaSerDesenhada != 6) {
+                if (!maoSelecionada && baldeActivo == false) {
+                    posXFinalMouse = e.getX();
+                    posYFinalMouse = e.getY();
+
+                    int posXInicialDesenho = posXInicialMouse;
+                    int posYInicialDesenho = posYInicialMouse;
+                    int x, y, largura, altura;
+
+                    if (posXFinalMouse < posXInicialMouse) {
+                        x = posXFinalMouse;
+                        largura = posXInicialMouse - posXFinalMouse;
+                    } else {
+                        x = posXInicialMouse;
+                        largura = posXFinalMouse - posXInicialMouse;
+                    }
+
+                    if (posYFinalMouse < posYInicialMouse) {
+                        y = posYFinalMouse;
+                        altura = posYInicialMouse - posYFinalMouse;
+                    } else {
+                        y = posYInicialMouse;
+                        altura = posYFinalMouse - posYInicialMouse;
+                    }
+
+                    if (formaParaSerDesenhada == 4) {
+                        novaFigura = new FiguraGeometrica(x, y,
+                                posXFinalMouse, posYFinalMouse,
+                                corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
+                    } else {
+                        novaFigura = new FiguraGeometrica(posXInicialDesenho, posYInicialDesenho,
+                                largura, altura,
+                                corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
+                    }
+
+                    inserirNovaFigura(novaFigura);
+
+                    timeline.listaDeFrames
+                            .get(actualFrameIndex % timeline.getListaDeFrames().size())
+                            .listaDeDesenhosNesteFrame.add(novaFigura);
+                    super.repaint();
+                } else {
+                    if (timeline.getListaDeFrames().get(actualFrameIndex).isKeyFrame()) {
+                        if (figuraASerArrastada != null) {
+                            if (figuraASerArrastada.posicoesObjectoNosFrames.containsKey(actualFrameIndex)) {
+                                figuraASerArrastada.posicoesObjectoNosFrames.replace(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y)); 
+                            } else {
+                               figuraASerArrastada.posicoesObjectoNosFrames.put(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));  
+                            }
                         }
                     }
                 }
-                
             }
+            
         }
         
         public void inserirNovaFigura(FiguraGeometrica novaFigura) {
@@ -634,8 +665,7 @@ public final class JanelaPrincipal extends JFrame {
             
         }
 
-        private void desenharObjecto(FiguraGeometrica objecto, Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
+        private void desenharObjecto(FiguraGeometrica objecto) {
             
             int x = objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? 
                     (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getX() : objecto.getxPos();
@@ -665,8 +695,7 @@ public final class JanelaPrincipal extends JFrame {
                             objecto.getLargura(), objecto.getAltura());
                     break;
                 case 6:
-                    g2d.fillRect(x, y, 
-                            objecto.getLargura(), objecto.getAltura());
+                    g2d.fillOval(x, y, 10, 10);
                     break;
                 case 7:
                     // Apagador
