@@ -1,5 +1,8 @@
 package projectofinalcomputacaografica;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+
 /**
  *
  * @Autor ed

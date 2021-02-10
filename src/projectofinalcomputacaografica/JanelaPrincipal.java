@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -48,7 +49,7 @@ public final class JanelaPrincipal extends JFrame {
     private final JButton buttonApagador = new JButton(new ImageIcon(PATH_ICONS + "borracha.png"));
     private final JButton buttonQuadrado = new JButton(new ImageIcon(PATH_ICONS + "quadrado.png"));
     private final JButton buttonCirculo = new JButton(new ImageIcon(PATH_ICONS + "circulo.png"));
-    private final JButton buttonBalde = new JButton("Balde");
+    private final JButton buttonBalde = new JButton(new ImageIcon(PATH_ICONS + "balde.png"));
     private final JButton buttonQuadradoB = new JButton("QuadradoB");
     private final JButton buttonTriangulo = new JButton(new ImageIcon(PATH_ICONS + "triangulo.png"));
     private final JButton buttonColor = new JButton();
@@ -59,10 +60,12 @@ public final class JanelaPrincipal extends JFrame {
     private final JButton buttonSetKeyFrame = new JButton("Set Keyframe");
     private final JButton buttonSetBlankKeyFrame = new JButton("Blank Keyframe");
     private final JButton buttonSetFrameAnimation = new JButton("Set Animation");
+    private final JButton buttonRemoveAnimation = new JButton("Remove Animation");
     public JButton botaoSelecionadoAnteriormente = null;
     private int inicioAnimacao, fimAnimacao;
     private int setandoInicioEFim = 1;
     private boolean settingAnimationStartFrame = false;
+    private boolean removingAnimation = false;
     private boolean baldeActivo = false;
     private Timeline timeline;
     
@@ -99,7 +102,7 @@ public final class JanelaPrincipal extends JFrame {
     public void standardConfiguration() {
         super.setTitle("hsalF");
         super.setLayout(null);
-        super.setBackground(Color.BLACK);
+        super.setBackground(Color.decode("#3c3c3c"));
     }
     
     public void inicializarTimeline() {
@@ -125,6 +128,7 @@ public final class JanelaPrincipal extends JFrame {
         barraFerramentasDeFuncionalidades.add(buttonSetKeyFrame);
         barraFerramentasDeFuncionalidades.add(buttonSetBlankKeyFrame);
         barraFerramentasDeFuncionalidades.add(buttonSetFrameAnimation);
+        barraFerramentasDeFuncionalidades.add(buttonRemoveAnimation);
         barraFerramentasDeFuncionalidades.add(buttonPlay);
         barraFerramentasDeFuncionalidades.setOrientation(1);
         barraFerramentasDeFuncionalidades.setBounds(WIDTH_JANELA - 150, 0, 150, 450);
@@ -132,6 +136,10 @@ public final class JanelaPrincipal extends JFrame {
         
         buttonSetFrameAnimation.addActionListener((ActionEvent e) -> {
             settingAnimationStartFrame = true;
+        });
+        
+        buttonRemoveAnimation.addActionListener((ActionEvent e) -> {
+            removingAnimation = true;
         });
         
         buttonSetKeyFrame.addActionListener((ActionEvent e) -> {
@@ -144,6 +152,10 @@ public final class JanelaPrincipal extends JFrame {
                 
                 auxFrame.setKeyFrame(true);
                 timeline.getListaDeFrames().get(actualFrameIndex).setKeyFrame(true);
+                for(FiguraGeometrica figura : timeline.getListaDeFrames().get(actualFrameIndex).getListaDeDesenhosNesteFrame()) {
+                    figura.setCorFiguraFrame(actualFrameIndex, figura.getCorFigura());
+                    figura.setNovoPonto(actualFrameIndex, new Point(figura.getxPos(), figura.getyPos()));
+                }
             } catch (Exception evento) {
                 System.out.println("Deu pau: " + evento.toString());
             }
@@ -168,7 +180,8 @@ public final class JanelaPrincipal extends JFrame {
             if (elemento instanceof JButton) {
                 final JButton auxButton = (JButton) elemento;
                 
-                auxButton.setPreferredSize(new Dimension(50, 10));
+                auxButton.setMaximumSize(new Dimension(150, 35));
+                auxButton.setMaximumSize(new Dimension(150, 35));
                 auxButton.setBackground(Color.WHITE);
             }
         }
@@ -193,8 +206,8 @@ public final class JanelaPrincipal extends JFrame {
         barraFerramentasDeDesenho.add(buttonLine);
         barraFerramentasDeDesenho.add(buttonTriangulo);
         barraFerramentasDeDesenho.add(buttonApagador);
-        barraFerramentasDeDesenho.add(buttonColor);
         barraFerramentasDeDesenho.add(buttonBalde);
+        barraFerramentasDeDesenho.add(buttonColor);
         
         barraFerramentasDeDesenho.setOrientation(1);
         barraFerramentasDeDesenho.setBounds(0, 0, 150, 450);
@@ -247,7 +260,7 @@ public final class JanelaPrincipal extends JFrame {
                 Color color = JColorChooser.showDialog(null, "Seleciona a cor", Color.RED);
                 corDeDesenho = color != null ? color : Color.BLACK;
                 
-                System.out.println(corDeDesenho);
+                buttonColor.setBackground(corDeDesenho);
                 forma = painelDeDesenho.getForma();
             } else if (e.getSource() == buttonQuadrado) {
                 forma = 1;
@@ -298,7 +311,9 @@ public final class JanelaPrincipal extends JFrame {
                 auxButton.setText("" + i);
                 
                 if (i % 5 == 0) {
-                    auxButton.setBackground(Color.white);
+                    auxButton.setBackground(Color.decode("#41abc3"));
+                } else {
+                    auxButton.setBackground(new Color(255, 255, 255));
                 }
                 
                 auxButton.addActionListener((ActionEvent e) -> {
@@ -316,7 +331,21 @@ public final class JanelaPrincipal extends JFrame {
                                fimAnimacao = auxButton.getID();
                                auxButton.setFimAnimation(auxButton.getID());
                                settingAnimationStartFrame = false;
-                               buildFrameAnimation();
+                               buildMoveAnimation();
+                               setandoInicioEFim = 1;
+                            }
+                        }
+                    } else if (removingAnimation && auxFrame.isKeyFrame()) {
+                        if (setandoInicioEFim == 1) {
+                            inicioAnimacao = auxFrame.getID();
+                            auxFrame.setInicioAnimation(auxFrame.getID());
+                            setandoInicioEFim++;
+                        } else {
+                            if (inicioAnimacao != auxFrame.getID()) {
+                               fimAnimacao = auxButton.getID();
+                               auxButton.setFimAnimation(auxButton.getID());
+                               removingAnimation = false;
+                               removeMoveAnimation();
                                setandoInicioEFim = 1;
                             }
                         }
@@ -356,7 +385,7 @@ public final class JanelaPrincipal extends JFrame {
         private void construirListaDeFrames(Graphics2D g2Graphics) {
             int offsetFrames = 0;
             
-            for (int i = 0; i < listaDeFrames.size(); i++) {
+            for (Frame listaDeFrame : listaDeFrames) {
                 g2Graphics.setStroke(new BasicStroke( 2.0f ));
                 g2Graphics.drawRect(offsetFrames, 0, ProjectoUtils.FRAME_WIDTH, ProjectoUtils.FRAME_HEIGHT);
                 offsetFrames += ProjectoUtils.FRAME_WIDTH;
@@ -372,7 +401,7 @@ public final class JanelaPrincipal extends JFrame {
             return lista;
         }
         
-        private void buildFrameAnimation() {
+        private void buildMoveAnimation() {
             if (settingAnimationStartFrame == false) {
                 final int startIndexFrame = inicioAnimacao;
                 final int endIndexFrame = fimAnimacao;
@@ -402,8 +431,8 @@ public final class JanelaPrincipal extends JFrame {
                         }
                         
                         final FiguraGeometrica figuraActual = frameActual.listaDeDesenhosNesteFrame.get(figuraActualIndex);
-                        final int posicaoFinalX = endFrame.listaDeDesenhosNesteFrame.get(figuraActualIndex).getxPos();
-                        final int posicaoFinalY = endFrame.listaDeDesenhosNesteFrame.get(figuraActualIndex).getyPos();
+                        final int posicaoFinalX = endFrame.listaDeDesenhosNesteFrame.get(figuraActualIndex).getPosXFrame(endIndexFrame);
+                        final int posicaoFinalY = endFrame.listaDeDesenhosNesteFrame.get(figuraActualIndex).getPosYFrame(endIndexFrame);
                         final int novoPontoX = (percentagemDeDeslocamento * posicaoFinalX) / 100;
                         final int novoPontoY = (percentagemDeDeslocamento * posicaoFinalY) / 100;
                         
@@ -415,6 +444,54 @@ public final class JanelaPrincipal extends JFrame {
                     
                     representacaoVisualFrame.setEnabled(false);
                     representacaoVisualFrame.setBackground(new Color(30, 30, 30));
+                }
+            }
+        }
+        
+        private void removeMoveAnimation() {
+            if (removingAnimation == false) {
+                final int startIndexFrame = inicioAnimacao;
+                final int endIndexFrame = fimAnimacao;
+                int actualIndexFrame;
+                
+                Frame startFrame = (Frame) timeline.listaDeFrames.get(startIndexFrame);
+                Frame endFrame = (Frame) timeline.listaDeFrames.get(endIndexFrame);
+                
+                
+                final int quantFormasGeometricas = endFrame.listaDeDesenhosNesteFrame.size() >= 
+                        startFrame.listaDeDesenhosNesteFrame.size() ? startFrame.listaDeDesenhosNesteFrame.size() : 
+                        endFrame.listaDeDesenhosNesteFrame.size();
+                
+                final ArrayList<FiguraGeometrica> listaDeFiguras = endFrame.listaDeDesenhosNesteFrame.size() >= 
+                        startFrame.listaDeDesenhosNesteFrame.size() ?
+                        startFrame.listaDeDesenhosNesteFrame : endFrame.listaDeDesenhosNesteFrame;
+                
+                
+                for (actualIndexFrame = inicioAnimacao + 1; actualIndexFrame < endIndexFrame; actualIndexFrame++) {
+                    final Frame frameActual = (Frame) timeline.getComponent(actualIndexFrame);
+                    final JButton representacaoVisualFrame = (JButton) timeline.getComponent(actualIndexFrame);
+                    
+                    for (int figuraActualIndex = 0; figuraActualIndex < quantFormasGeometricas; figuraActualIndex++) {
+                        if (frameActual.listaDeDesenhosNesteFrame.size() <= 0) {
+                            frameActual.setListaDeDesenhosNesteFrame(listaDeFiguras);
+                        }
+                        
+                        final FiguraGeometrica figuraActual = frameActual.listaDeDesenhosNesteFrame.get(figuraActualIndex);
+                        
+                        figuraActual.setNovoPonto(actualIndexFrame, 
+                                new Point(startFrame.listaDeDesenhosNesteFrame.get(figuraActualIndex).getPosXFrame(startIndexFrame),
+                                        startFrame.listaDeDesenhosNesteFrame.get(figuraActualIndex).getPosYFrame(startIndexFrame)));
+                        
+                        frameActual.listaDeDesenhosNesteFrame.remove(figuraActualIndex);
+                        frameActual.listaDeDesenhosNesteFrame.add(figuraActualIndex, figuraActual);
+                    }
+                    
+                    representacaoVisualFrame.setEnabled(true);
+                    if (actualIndexFrame % 5 == 0) {
+                        representacaoVisualFrame.setBackground(Color.decode("#41abc3"));
+                    } else {
+                        representacaoVisualFrame.setBackground(new Color(255, 255, 255));
+                    }
                 }
             }
         }
@@ -464,22 +541,20 @@ public final class JanelaPrincipal extends JFrame {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
             timeline
-                 .listaDeFrames
-                 .get(actualFrameIndex % timeline.getListaDeFrames().size())
-                 .listaDeDesenhosNesteFrame.forEach((objecto) -> {
-                     AffineTransform affineAux = g2d.getTransform();
-                     desenharObjecto(objecto);
-                     g2d.setTransform(affineAux);
-                 });
+                .listaDeFrames
+                .get(actualFrameIndex % timeline.getListaDeFrames().size())
+                .listaDeDesenhosNesteFrame.forEach((objecto) -> {
+                    AffineTransform affineAux = g2d.getTransform();
+                    desenharObjecto(objecto);
+                    g2d.setTransform(affineAux);
+                });
             
             apagadorLista.forEach((objecto) -> {
                 AffineTransform affineAux = g2d.getTransform();
                 desenharObjecto(objecto);
                 g2d.setTransform(affineAux);
             });
-            
-            
-            
+
             desenharNovaFigura();
             g2d.setTransform(afine);
         }
@@ -517,8 +592,16 @@ public final class JanelaPrincipal extends JFrame {
         public void mouseDragged(MouseEvent e) {
            if (maoSelecionada && baldeActivo == false) {
                if (figuraASerArrastada != null) {
-                   figuraASerArrastada.setxPos(e.getPoint().x);
-                   figuraASerArrastada.setyPos(e.getPoint().y);
+                   if (figuraASerArrastada.getForma() != 4) {
+                       figuraASerArrastada.setNovoPonto(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));
+                   } else {
+                       int largura = figuraASerArrastada.getLargura() - figuraASerArrastada.getxPos();
+                       int altura = figuraASerArrastada.getAltura() - figuraASerArrastada.getyPos();
+                       
+                       figuraASerArrastada.setNovoPonto(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));
+                       figuraASerArrastada.setLargura(figuraASerArrastada.getxPos() + largura);
+                       figuraASerArrastada.setAltura(figuraASerArrastada.getyPos() + altura);
+                   }
                }
            } else {
                if (formaParaSerDesenhada != 6) {
@@ -552,11 +635,19 @@ public final class JanelaPrincipal extends JFrame {
 
                     figuraGeometricaASerRecolorida = timeline.getListaDeFrames()
                                                       .get(actualFrameIndex)
-                                                      .getFiguraPosicao(pontoClicadoPeloMouse);
+                                                      .getFiguraPosicao(pontoClicadoPeloMouse, actualFrameIndex);
 
                     if (figuraGeometricaASerRecolorida != null) {
                         figuraASerArrastada = figuraGeometricaASerRecolorida;
                         figuraGeometricaASerRecolorida.setCorFigura(corDeDesenho);
+                        
+                        if (timeline.getListaDeFrames().get(actualFrameIndex).isKeyFrame()) {
+                            if (figuraASerArrastada.coresObjectoNosFrames.containsKey(actualFrameIndex)) {
+                                figuraASerArrastada.coresObjectoNosFrames.replace(actualFrameIndex, corDeDesenho);
+                            } else {
+                               figuraASerArrastada.coresObjectoNosFrames.put(actualFrameIndex, corDeDesenho);
+                            }
+                        }
                         repaint();
                     } else {
                         figuraASerArrastada = null;
@@ -566,14 +657,12 @@ public final class JanelaPrincipal extends JFrame {
                     posXInicialMouse = e.getX();
                     posYInicialMouse = e.getY();
                 } else {
-                    FiguraGeometrica figuraGeometricaASerMovimentada;
+                    FiguraGeometrica figuraGeometricaASerMovimentada = null;
                     Point pontoClicadoPeloMouse = e.getPoint();
-
 
                     figuraGeometricaASerMovimentada = timeline.getListaDeFrames()
                                                       .get(actualFrameIndex)
-                                                      .getFiguraPosicao(pontoClicadoPeloMouse);
-
+                                                      .getFiguraPosicao(pontoClicadoPeloMouse, actualFrameIndex);
                     if (figuraGeometricaASerMovimentada != null) {
                         figuraASerArrastada = figuraGeometricaASerMovimentada;
                     } else {
@@ -620,7 +709,9 @@ public final class JanelaPrincipal extends JFrame {
                                 largura, altura,
                                 corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
                     }
-
+                    novaFigura.setNovoPonto(actualFrameIndex, new Point(x, y));
+                    novaFigura.setCorFiguraFrame(actualFrameIndex, corDoDesenho);
+                    
                     inserirNovaFigura(novaFigura);
 
                     timeline.listaDeFrames
@@ -631,9 +722,9 @@ public final class JanelaPrincipal extends JFrame {
                     if (timeline.getListaDeFrames().get(actualFrameIndex).isKeyFrame()) {
                         if (figuraASerArrastada != null) {
                             if (figuraASerArrastada.posicoesObjectoNosFrames.containsKey(actualFrameIndex)) {
-                                figuraASerArrastada.posicoesObjectoNosFrames.replace(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y)); 
+                                figuraASerArrastada.posicoesObjectoNosFrames.replace(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));
                             } else {
-                               figuraASerArrastada.posicoesObjectoNosFrames.put(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));  
+                               figuraASerArrastada.posicoesObjectoNosFrames.put(actualFrameIndex, new Point(e.getPoint().x, e.getPoint().y));
                             }
                         }
                     }
@@ -665,15 +756,14 @@ public final class JanelaPrincipal extends JFrame {
             
         }
 
+        @SuppressWarnings("empty-statement")
         private void desenharObjecto(FiguraGeometrica objecto) {
             
-            int x = objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? 
-                    (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getX() : objecto.getxPos();
+            int x = objecto.getPosXFrame(actualFrameIndex);
+            int y = objecto.getPosYFrame(actualFrameIndex);
             
-            int y =  objecto.posicoesObjectoNosFrames.get(actualFrameIndex) != null ? 
-                    (int)objecto.posicoesObjectoNosFrames.get(actualFrameIndex).getY() : objecto.getyPos();;
+            g2d.setColor(objecto.getCorFiguraFrame(actualFrameIndex));
             
-            g2d.setColor(objecto.getCorFigura());
             switch (objecto.getForma()) {
                 case 1:
                     g2d.fillRect(x, y, objecto.getLargura(), objecto.getAltura());
@@ -719,7 +809,8 @@ public final class JanelaPrincipal extends JFrame {
                         break;
                     }
                 }
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                System.out.println("");
             }
         }
 

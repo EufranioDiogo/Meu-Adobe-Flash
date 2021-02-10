@@ -92,13 +92,13 @@ public class Frame extends JButton {
         return "Frame ID: " + id;
     }
     
-    public FiguraGeometrica getFiguraPosicao(Point pontoClicado) {
+    public FiguraGeometrica getFiguraPosicao(Point pontoClicado, int frame) {
         final int X1 = (int) pontoClicado.getX();
         final int Y1 = (int) pontoClicado.getY();
         
         for (final FiguraGeometrica figura : listaDeDesenhosNesteFrame) {
-            final int X2 = (int) figura.getPontosFigura().getX();
-            final int Y2 = (int) figura.getPontosFigura().getY();
+            final int X2 = (int) figura.getPosXFrame(frame);
+            final int Y2 = (int) figura.getPosYFrame(frame);
             
             if ((X1 >= X2 && Y1 >= Y2) && (X1 <= (X2 + figura.largura) && Y1 <= (Y2 + figura.altura) )) {
                 return figura;

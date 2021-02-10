@@ -13,8 +13,9 @@ import javax.swing.JPanel;
  * @Autor ed
  * Free Use - Livre_Uso
  */
-public class FiguraGeometrica extends JPanel {
+public class FiguraGeometrica {
     HashMap<Integer, Point> posicoesObjectoNosFrames = new HashMap<>();
+    HashMap<Integer, Color> coresObjectoNosFrames = new HashMap<>();
     Point localizacaoObjecto;
     int altura, largura;
     int xPosFinal, yPosFinal;
@@ -33,6 +34,7 @@ public class FiguraGeometrica extends JPanel {
         this.frameDeCriacao = frameDeCriacao;
         this.localizacaoObjecto = new Point(xPos, yPos);
         this.posicoesObjectoNosFrames.put(frameDeCriacao, localizacaoObjecto);
+        this.coresObjectoNosFrames.put(frameDeCriacao, corFigura);
     }
 
     public int getxPos() {
@@ -51,6 +53,29 @@ public class FiguraGeometrica extends JPanel {
         this.localizacaoObjecto.y = yPos;
     }
 
+    
+    public int getPosXFrame(int frame) {
+        return this.posicoesObjectoNosFrames.get(frame) != null ? 
+                    (int)this.posicoesObjectoNosFrames.get(frame).getX() : this.getxPos();
+    }
+    
+    public int getPosYFrame(int frame) {
+        return this.posicoesObjectoNosFrames.get(frame) != null ? 
+                    (int)this.posicoesObjectoNosFrames.get(frame).getY() : this.getyPos();
+    }
+    
+    public void setCorFiguraFrame(int frame, Color cor) {
+        if (posicoesObjectoNosFrames.containsKey(frame)) {
+            coresObjectoNosFrames.replace(frame, cor);
+        } else {
+            coresObjectoNosFrames.put(frame, cor);
+        }
+    }
+    
+    public Color getCorFiguraFrame(int frame) {
+        return this.coresObjectoNosFrames.get(frame) != null ?
+               this.coresObjectoNosFrames.get(frame) : this.getCorFigura();
+    }
     public int getAltura() {
         return altura;
     }
