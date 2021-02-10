@@ -100,7 +100,7 @@ public class Frame extends JButton {
             final int X2 = (int) figura.getPontosFigura().getX();
             final int Y2 = (int) figura.getPontosFigura().getY();
             
-            if ((X1 > X2 && Y1 > Y2) && (X1 < (X2 + figura.largura) && Y1 < (Y2 + figura.altura) )) {
+            if ((X1 >= X2 && Y1 >= Y2) && (X1 <= (X2 + figura.largura) && Y1 <= (Y2 + figura.altura) )) {
                 return figura;
             }
         }

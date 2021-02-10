@@ -14,7 +14,7 @@ import javax.swing.JPanel;
  * Free Use - Livre_Uso
  */
 public class FiguraGeometrica extends JPanel implements Runnable, MouseListener {
-    HashMap<Integer, Point> posicoesObjectoNosFrames = new HashMap<>(); 
+    HashMap<Integer, Point> posicoesObjectoNosFrames = new HashMap<>();
     Point localizacaoObjecto;
     int altura, largura;
     int xPosFinal, yPosFinal;

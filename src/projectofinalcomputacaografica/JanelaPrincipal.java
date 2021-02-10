@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,6 +48,7 @@ public final class JanelaPrincipal extends JFrame {
     private final JButton buttonApagador = new JButton(new ImageIcon(PATH_ICONS + "borracha.png"));
     private final JButton buttonQuadrado = new JButton(new ImageIcon(PATH_ICONS + "quadrado.png"));
     private final JButton buttonCirculo = new JButton(new ImageIcon(PATH_ICONS + "circulo.png"));
+    private final JButton buttonBalde = new JButton("Balde");
     private final JButton buttonQuadradoB = new JButton("QuadradoB");
     private final JButton buttonTriangulo = new JButton(new ImageIcon(PATH_ICONS + "triangulo.png"));
     private final JButton buttonColor = new JButton();
@@ -61,7 +63,7 @@ public final class JanelaPrincipal extends JFrame {
     private int inicioAnimacao, fimAnimacao;
     private int setandoInicioEFim = 1;
     private boolean settingAnimationStartFrame = false;
-    
+    private boolean baldeActivo = false;
     private Timeline timeline;
     
     private int actualFrameIndex = 0;
@@ -86,6 +88,7 @@ public final class JanelaPrincipal extends JFrame {
         buttonColor.addActionListener(escutaDeClickEmBotoes);
         buttonQuadrado.addActionListener(escutaDeClickEmBotoes);
         buttonQuadradoB.addActionListener(escutaDeClickEmBotoes);
+        buttonBalde.addActionListener(escutaDeClickEmBotoes);
         buttonCirculo.addActionListener(escutaDeClickEmBotoes);
         buttonLine.addActionListener(escutaDeClickEmBotoes);
         buttonTriangulo.addActionListener(escutaDeClickEmBotoes);
@@ -191,6 +194,7 @@ public final class JanelaPrincipal extends JFrame {
         barraFerramentasDeDesenho.add(buttonTriangulo);
         barraFerramentasDeDesenho.add(buttonApagador);
         barraFerramentasDeDesenho.add(buttonColor);
+        barraFerramentasDeDesenho.add(buttonBalde);
         
         barraFerramentasDeDesenho.setOrientation(1);
         barraFerramentasDeDesenho.setBounds(0, 0, 150, 450);
@@ -214,12 +218,7 @@ public final class JanelaPrincipal extends JFrame {
         public boolean maoSelecionada = false;
         
         @Override
-        public void actionPerformed(ActionEvent e) {
-            
-            if (e.getSource() == checkBoxRotacao) {
-                painelDeDesenho.setRotacao(checkBoxRotacao.isSelected());
-            }
-            
+        public void actionPerformed(ActionEvent e) { 
             JButton botaoSelecionadoActualmente = (JButton) e.getSource();
             
             if (botaoSelecionadoAnteriormente == null) {
@@ -236,8 +235,13 @@ public final class JanelaPrincipal extends JFrame {
             
             if (e.getSource() == buttonMao) {
                maoSelecionada = true;
+               baldeActivo = false;
                forma = -1;
-            } else if (e.getSource() == buttonLapis) {
+            } else if (e.getSource() == buttonBalde) {
+                baldeActivo = !baldeActivo;
+                maoSelecionada = false;
+            }
+            else if (e.getSource() == buttonLapis) {
                 forma = 0;
             } else if (e.getSource() == buttonColor) {
                 Color color = JColorChooser.showDialog(null, "Seleciona a cor", Color.RED);
@@ -419,7 +423,6 @@ public final class JanelaPrincipal extends JFrame {
         boolean redesenharTodosObjectos = false;
         Color corDoDesenho;
         Dimension dimensao = Toolkit.getDefaultToolkit().getScreenSize();
-        private boolean rotacao;
         Thread thread;
         ArrayList<Frame> listaDeFrames;
         private boolean running = false;
@@ -446,15 +449,12 @@ public final class JanelaPrincipal extends JFrame {
             return this.formaParaSerDesenhada;
         }
         
-        public void setRotacao(boolean value) {
-            this.rotacao = value;
-        }
-        
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             AffineTransform afine = g2d.getTransform();
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
             timeline.listaDeFrames.get(actualFrameIndex % timeline.getListaDeFrames().size())
                  .listaDeDesenhosNesteFrame.forEach((objecto) -> {
@@ -463,17 +463,35 @@ public final class JanelaPrincipal extends JFrame {
                      g2d.setTransform(affineAux);
                  });
             
-            int largura = Math.abs(posXFinalMouse - posXInicialMouse);
-            int altura = Math.abs(posYFinalMouse - posYInicialMouse);
+            int x, y, largura, altura;
             
-            desenharObjecto(new FiguraGeometrica(posXInicialMouse, posYInicialMouse, largura, altura,
+            if (posXFinalMouse < posXInicialMouse) {
+                x = posXFinalMouse;
+                largura = posXInicialMouse - posXFinalMouse;
+            } else {
+                x = posXInicialMouse;
+                largura = posXFinalMouse - posXInicialMouse;
+            }
+            
+            
+            
+
+            if (posYFinalMouse < posYInicialMouse) {
+                y = posYFinalMouse;
+                altura = posYInicialMouse - posYFinalMouse;
+            } else {
+                y = posYInicialMouse;
+                altura = posYFinalMouse - posYInicialMouse;
+            }
+                
+            desenharObjecto(new FiguraGeometrica(x, y, largura, altura,
                             corDoDesenho, formaParaSerDesenhada, actualFrameIndex), g);
             g2d.setTransform(afine);
         }
         
         @Override
         public void mouseDragged(MouseEvent e) {
-           if (maoSelecionada) {
+           if (maoSelecionada && baldeActivo == false) {
                if (figuraASerArrastada != null) {
                    figuraASerArrastada.setxPos(e.getPoint().x);
                    figuraASerArrastada.setyPos(e.getPoint().y);
@@ -498,7 +516,24 @@ public final class JanelaPrincipal extends JFrame {
 
         @Override
         public void mousePressed(MouseEvent e) {
-            if (!maoSelecionada) {
+            if (baldeActivo) {
+                FiguraGeometrica figuraGeometricaASerRecolorida;
+                Point pontoClicadoPeloMouse = e.getPoint();
+
+
+                figuraGeometricaASerRecolorida = timeline.getListaDeFrames()
+                                                  .get(actualFrameIndex)
+                                                  .getFiguraPosicao(pontoClicadoPeloMouse);
+
+                if (figuraGeometricaASerRecolorida != null) {
+                    figuraASerArrastada = figuraGeometricaASerRecolorida;
+                    figuraGeometricaASerRecolorida.setCorFigura(corDeDesenho);
+                    repaint();
+                } else {
+                    figuraASerArrastada = null;
+                    System.out.println("Nenhum elemento selecionado");
+                }  
+            } else if (!maoSelecionada && baldeActivo == false) {
                 posXInicialMouse = e.getX();
                 posYInicialMouse = e.getY();
             } else {
@@ -521,30 +556,34 @@ public final class JanelaPrincipal extends JFrame {
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            if (!maoSelecionada) {
+            if (!maoSelecionada && baldeActivo == false) {
                 posXFinalMouse = e.getX();
                 posYFinalMouse = e.getY();
 
                 int posXInicialDesenho = posXInicialMouse;
                 int posYInicialDesenho = posYInicialMouse;
-                int largura;
-                int altura;
 
+                int x, y, largura, altura;
+            
                 if (posXFinalMouse < posXInicialMouse) {
-                    posXInicialDesenho = posXFinalMouse;
-                    posXFinalMouse = posXInicialMouse;
+                    x = posXFinalMouse;
+                    largura = posXInicialMouse - posXFinalMouse;
+                } else {
+                    x = posXInicialMouse;
+                    largura = posXFinalMouse - posXInicialMouse;
                 }
-                largura = posXFinalMouse - posXInicialDesenho;
-
+                
                 if (posYFinalMouse < posYInicialMouse) {
-                    posYInicialDesenho = posYFinalMouse;
-                    posYFinalMouse = posYInicialMouse;
+                    y = posYFinalMouse;
+                    altura = posYInicialMouse - posYFinalMouse;
+                } else {
+                    y = posYInicialMouse;
+                    altura = posYFinalMouse - posYInicialMouse;
                 }
-                altura = posYFinalMouse - posYInicialDesenho;
-
+            
                 if (formaParaSerDesenhada == 4) {
-                    novaFigura = new FiguraGeometrica(posXInicialDesenho,
-                            posYInicialDesenho, posXFinalMouse, posYInicialDesenho,
+                    novaFigura = new FiguraGeometrica(x,
+                            y, posXFinalMouse, posYFinalMouse,
                             corDoDesenho, formaParaSerDesenhada, actualFrameIndex);
                 } else {
                     novaFigura = new FiguraGeometrica(posXInicialDesenho,
