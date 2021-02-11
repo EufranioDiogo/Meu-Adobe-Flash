@@ -55,13 +55,13 @@ public class FiguraGeometrica {
 
     
     public int getPosXFrame(int frame) {
-        return this.posicoesObjectoNosFrames.get(frame) != null ? 
-                    (int)this.posicoesObjectoNosFrames.get(frame).getX() : this.getxPos();
+        return this.posicoesObjectoNosFrames.get(frame) != null ?
+               (int)this.posicoesObjectoNosFrames.get(frame).getX() : this.getxPos();
     }
     
     public int getPosYFrame(int frame) {
-        return this.posicoesObjectoNosFrames.get(frame) != null ? 
-                    (int)this.posicoesObjectoNosFrames.get(frame).getY() : this.getyPos();
+        return this.posicoesObjectoNosFrames.get(frame) != null ?
+               (int)this.posicoesObjectoNosFrames.get(frame).getY() : this.getyPos();
     }
     
     public void setCorFiguraFrame(int frame, Color cor) {
